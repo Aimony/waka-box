@@ -23,10 +23,9 @@ def fetch_stats():
     response = requests.get(url).json()
     
     data = response['data'][0]
-    total_time = data['grand_total']['text']
     languages = data['languages'][:5] # 仅取前5种语言
     
-    lines = [f"Today's Total Time: {total_time}", ""]
+    lines = []
     
     for lang in languages:
         name = lang['name'].ljust(12)

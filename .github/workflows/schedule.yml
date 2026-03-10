@@ -1,7 +1,11 @@
 name: Update gist with WakaTime stats
 on:
   schedule:
-    - cron: "0 2 * * *"
+    # Weekly stats update: 04:00 Beijing (UTC+8) => 20:00 UTC (previous day)
+    - cron: "0 20 * * *"
+    # Daily stats update: even hours in Beijing including 00:00 and 08:00
+    # Beijing even hours 00,08,10,12,14,16,18,20,22 => UTC 16,00,02,04,06,08,10,12,14
+    - cron: "0 0-16/2 * * *"
   # Manual triggers with workflow_dispatch
   workflow_dispatch:
 jobs:
@@ -11,6 +15,7 @@ jobs:
       - uses: actions/checkout@master
       - name: Update gist
         uses: matchai/waka-box@master
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '0 20 * * *' }}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GIST_ID: 8a9aa1d481ebe16666366bd9ef00bf33
@@ -18,13 +23,16 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v4
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '0 0-16/2 * * *' }}
         with:
           python-version: '3.10'
           
       - name: Install dependencies
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '0 0-16/2 * * *' }}
         run: pip install requests
         
       - name: Update Daily Gist
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '0 0-16/2 * * *' }}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}

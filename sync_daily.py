@@ -26,9 +26,10 @@ def fetch_stats():
     languages = data['languages'][:5] # 仅取前5种语言
     
     lines = []
-    
+    name_width = max((len(lang['name']) for lang in languages), default=0)
+
     for lang in languages:
-        name = lang['name'].ljust(12)
+        name = lang['name'].ljust(name_width)
         time_text = lang['text'].ljust(15)
         percent = lang['percent']
         bar = generate_bar(percent)

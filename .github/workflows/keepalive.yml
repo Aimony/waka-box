@@ -1,0 +1,30 @@
+name: Keepalive Heartbeat
+
+on:
+  schedule:
+    # Runs at 00:00 UTC on the 1st of every month (Beijing time 08:00 on the 1st)
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    name: Keepalive Heartbeat
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Update heartbeat
+        run: |
+          mkdir -p .github
+          echo "Last heartbeat: $(date -u)" > .github/heartbeat.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/heartbeat.txt
+          git commit -m "chore: automated heartbeat to keep repository active" || exit 0
+          git push
